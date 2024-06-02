@@ -5,9 +5,9 @@ __attribute__ ((unused)) static void loadLibCrane()
 {
     if (dlopen(JBROOT_PATH_CSTRING("/usr/lib/libcrane.dylib"), RTLD_NOW) == NULL)
     {
-       printf("Failed to load libcrane.dylib\n")
+       printf("Failed to load libcrane.dylib\n");
     } else {
-         printf("Successfully loaded libcrane.dylib\n")
+        printf("Successfully loaded libcrane.dylib\n");
     }
 }
 

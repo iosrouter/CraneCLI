@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #import <Foundation/Foundation.h>
-#import <libCrane.h>
+#import "libCrane.h"
 #import <dlfcn.h>
 #import <objc/runtime.h>
 #import <Foundation/Foundation.h>
@@ -169,7 +169,11 @@ int main(int argc, char *argv[]) {
 						@try {
 							NSArray *containers = [craneManager containerIdentifiersOfApplicationWithIdentifier:appIDString];
 							//print all 
-							printf
+							for (NSString *container in containers) {
+								NSString *displayName = [craneManager displayNameForContainerWithIdentifier:container ofApplicationWithIdentifier:appIDString shouldUseShortVersion:YES];
+								printf("[%s] Container: (%s: %s)\n", [appIDString UTF8String], [displayName UTF8String], [container UTF8String]);
+							}
+							
 						} @catch (NSException *exception) {
 							printf("%s\n", [[exception reason] UTF8String]);
 						}
