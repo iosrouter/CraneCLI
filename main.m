@@ -4,8 +4,8 @@
 #import <Foundation/Foundation.h>
 #import "libCrane.h"
 #import <dlfcn.h>
+#import <MRYIPCCenter.h>
 #import <objc/runtime.h>
-#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <rootless.h>
 @import ObjectiveC.runtime;
@@ -95,6 +95,7 @@ static void cliPrintHelp() {
 	printf("  -l List all applications with non-default containers\n");
 	printf("  -d <appID> <containerID> Delete a specified container for an application\n");
 	printf("  -h Print this help message\n");
+	printf("  -t Header dump on all containers for tinder (NOT WORKING)\n");
 	printf("  -o <appID> <containerID> Open app with active container\n");
 	printf("  Created by iosrouter.\n");
 }
@@ -116,7 +117,7 @@ int main(int argc, char *argv[]) {
 		if (argc == 1) {
 			cliPrintHelp();
 		}
-		while ((opt = getopt(argc, argv, "c:ld:ho:")) != -1) {
+		while ((opt = getopt(argc, argv, "c:ld:tho:")) != -1) {
 			switch (opt) {
 				case 'c':
 					if (argc > 3) {
@@ -203,6 +204,28 @@ int main(int argc, char *argv[]) {
 					//
 					//}
 					break;
+
+				case 't':
+					if (1) {
+						break;
+						printf("crane-cli: Starting header dump\n");
+						MRYIPCCenter* center = [MRYIPCCenter centerNamed:@"com.iosrouter.headersaver"];
+						[center callExternalVoidMethod:@selector(startHeaderDump) withArguments:nil];
+						printf("crane-cli: Started header dump\n");
+						NSArray *containerQueue = [center callExternalMethod:@selector(currentQueue) withArguments:nil];
+						printf("containerQueue: %s\n", [[containerQueue description] UTF8String]);
+						while ([containerQueue count] > 0) {
+							[NSThread sleepForTimeInterval:1];
+							printf("crane-cli: Dumping headers\n");
+						} 
+						NSDictionary *headers = [center callExternalMethod:@selector(headers) withArguments:nil];
+						for (NSString *header in headers) {
+							printf("%s\n", [header UTF8String]);
+						}
+						break;
+					}
+					break;
+
 				case 'h':
 					cliPrintHelp();
 					break;

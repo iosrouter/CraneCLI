@@ -32,7 +32,8 @@
   /home/ios/theos/sdks/iPhoneOS16.5.sdk/usr/include/mach-o/dyld.modulemap \
   /home/ios/crane-cli/CraneCLI/libCrane.h \
   /home/ios/theos/vendor/include/rootless.h \
-  /home/ios/theos/vendor/include/libroot/libroot.h
+  /home/ios/theos/vendor/include/libroot/libroot.h \
+  /home/ios/theos/include/MRYIPCCenter.h
 
 /home/ios/theos/Prefix.pch:
 
@@ -101,3 +102,5 @@
 /home/ios/theos/vendor/include/rootless.h:
 
 /home/ios/theos/vendor/include/libroot/libroot.h:
+
+/home/ios/theos/include/MRYIPCCenter.h:
