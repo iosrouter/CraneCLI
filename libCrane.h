@@ -7,7 +7,7 @@ __attribute__ ((unused)) static void loadLibCrane()
     {
        printf("Failed to load libcrane.dylib\n");
     } else {
-        printf("Successfully loaded libcrane.dylib\n");
+        //do nothing
     }
 }
 

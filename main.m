@@ -163,16 +163,29 @@ int main(int argc, char *argv[]) {
 					if (argc > 2) {
 						appID = argv[2];
 						containerID = argv[3];
+						//convert to NSString
+						NSString *containerIDString = [NSString stringWithUTF8String:containerID];
 						NSString *appIDString = [NSString stringWithUTF8String:appID];
 						//NSString *containerIDString = [NSString stringWithUTF8String:containerID];
 						//check if both argv's are greater than 1
 						@try {
 							NSArray *containers = [craneManager containerIdentifiersOfApplicationWithIdentifier:appIDString];
 							//print all 
-							for (NSString *container in containers) {
-								NSString *displayName = [craneManager displayNameForContainerWithIdentifier:container ofApplicationWithIdentifier:appIDString shouldUseShortVersion:YES];
-								printf("[%s] Container: (%s: %s)\n", [appIDString UTF8String], [displayName UTF8String], [container UTF8String]);
+							
+							if ([containers containsObject:containerIDString]) {
+								NSArray *settings = [craneManager applicationSettingsForApplicationWithIdentifier:appIDString][@"Containers"];
+								for (NSDictionary *container in settings) {
+									if ([container[@"identifier"] isEqualToString:containerIDString]) {
+										settings = [settings mutableCopy];
+										[(NSMutableArray*)settings removeObject:container];
+										[craneManager setApplicationSettings:@{@"Containers": settings} forApplicationWithIdentifier:appIDString];
+										printf("crane-cli: Deleted container \"%s\" for app \"%s\"\n", containerID, appID);
+									}
+								}
+							} else {
+								printf("crane-cli: Container \"%s\" not found for app \"%s\"\n", containerID, appID);
 							}
+								
 							
 						} @catch (NSException *exception) {
 							printf("%s\n", [[exception reason] UTF8String]);
