@@ -34,7 +34,7 @@ jobs:
       - name: Setup libs & build package
         run: |
           brew install make xz ldid
-          cd libimagepicker
+          cd MRYIPC
           chmod +x install.sh
           THEOS=../theos ./install.sh
           cd ../
