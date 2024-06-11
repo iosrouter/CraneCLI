@@ -95,7 +95,7 @@ static void cliPrintHelp() {
 	printf("  -l List all applications with non-default containers\n");
 	printf("  -d <appID> <containerID> Delete a specified container for an application\n");
 	printf("  -h Print this help message\n");
-	printf("  -t Header dump on all containers for tinder (NOT WORKING)\n");
+	printf("  -t Header dump on all containers for tinder (Built For Mike)\n");
 	printf("  -o <appID> <containerID> Open app with active container\n");
 	printf("  Created by iosrouter.\n");
 }
@@ -176,9 +176,12 @@ int main(int argc, char *argv[]) {
 							if ([containers containsObject:containerIDString]) {
 								NSArray *settings = [craneManager applicationSettingsForApplicationWithIdentifier:appIDString][@"Containers"];
 								for (NSDictionary *container in settings) {
+									printf(@"Container: %@", container);
 									if ([container[@"identifier"] isEqualToString:containerIDString]) {
-										settings = [settings mutableCopy];
-										[(NSMutableArray*)settings removeObject:container];
+										NSMutableArray *mutableSettings = [settings mutableCopy];
+										[mutableSettings removeObject:container];
+										settings = [mutableSettings copy];
+										printf("crane-cli: debug: %@", [settings description]);
 										[craneManager setApplicationSettings:@{@"Containers": settings} forApplicationWithIdentifier:appIDString];
 										printf("crane-cli: Deleted container \"%s\" for app \"%s\"\n", containerID, appID);
 									}
