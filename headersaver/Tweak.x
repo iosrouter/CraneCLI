@@ -5,6 +5,7 @@
 #import "libCrane.h"
 #import <objc/runtime.h>
 @import ObjectiveC.runtime;
+@import UIKit.UIApplication;
 
 @interface UIApplication (Private)
 - (BOOL)launchApplicationWithIdentifier:(NSString *)identifier suspended:(BOOL)suspended;
@@ -39,7 +40,7 @@
 {
 	if ((self = [super init]))
 	{
-		_center = [MRYIPCCenter centerNamed:@"com.iosrouter.headersaver"];
+		_center = [%c(MRYIPCCenter) centerNamed:@"com.iosrouter.headersaver"];
 		[_center addTarget:self action:@selector(startHeaderDump)];
 		[_center addTarget:self action:@selector(currentQueue)];
 		[_center addTarget:self action:@selector(saveHeader:)];
