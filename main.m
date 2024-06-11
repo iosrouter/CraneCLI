@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
 							}
 							//save to file /var/mobile/Documents/headers.txt
 						}
-						//[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
+						[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
 						printf("crane-cli: Finished header dump and saved to *(/var/jb)*/var/mobile/Documents/headers.txt\n");
 						break;
 					}
