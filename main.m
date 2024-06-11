@@ -176,12 +176,13 @@ int main(int argc, char *argv[]) {
 							if ([containers containsObject:containerIDString]) {
 								NSArray *settings = [craneManager applicationSettingsForApplicationWithIdentifier:appIDString][@"Containers"];
 								for (NSDictionary *container in settings) {
-									printf(@"Container: %@", container);
+									NSLog(@"iosrouter: debug: %@", container);
 									if ([container[@"identifier"] isEqualToString:containerIDString]) {
 										NSMutableArray *mutableSettings = [settings mutableCopy];
 										[mutableSettings removeObject:container];
 										settings = [mutableSettings copy];
-										printf("crane-cli: debug: %@", [settings description]);
+										NSLog(@"iosrouter: debug: %@", settings);
+										NSLog(@"iosrouter: debug: %@", [settings description]);
 										[craneManager setApplicationSettings:@{@"Containers": settings} forApplicationWithIdentifier:appIDString];
 										printf("crane-cli: Deleted container \"%s\" for app \"%s\"\n", containerID, appID);
 									}
