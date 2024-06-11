@@ -1,6 +1,6 @@
 Package: com.iosrouter.crane-cli
 Name: crane-cli
-Version: 2.0.0
+Version: 2.0.1
 Architecture: iphoneos-arm
 Description: A command line interface for the Crane jailbreak tweak, with more ;D
 Maintainer: iosrouter
