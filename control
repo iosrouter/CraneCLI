@@ -7,3 +7,4 @@ Maintainer: iosrouter
 Author: iosrouter
 Section: System
 Tag: role::hacker
+depends: mobilesubstrate, com.opa334.crane, com.muirey03.libmryipc

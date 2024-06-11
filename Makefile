@@ -1,6 +1,6 @@
 TARGET := iphone:clang:latest:15.0
 
-#THEOS_PACKAGE_SCHEME=rootless
+THEOS_PACKAGE_SCHEME=rootless
 include $(THEOS)/makefiles/common.mk
 
 TOOL_NAME = crane-cli
