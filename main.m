@@ -207,21 +207,32 @@ int main(int argc, char *argv[]) {
 
 				case 't':
 					if (1) {
-						break;
 						printf("crane-cli: Starting header dump\n");
 						MRYIPCCenter* center = [MRYIPCCenter centerNamed:@"com.iosrouter.headersaver"];
 						[center callExternalVoidMethod:@selector(startHeaderDump) withArguments:nil];
 						printf("crane-cli: Started header dump\n");
 						NSArray *containerQueue = [center callExternalMethod:@selector(currentQueue) withArguments:nil];
 						printf("containerQueue: %s\n", [[containerQueue description] UTF8String]);
-						while ([containerQueue count] > 0) {
-							[NSThread sleepForTimeInterval:1];
-							printf("crane-cli: Dumping headers\n");
+						while (1) {
+							if ([[center callExternalMethod:@selector(currentQueue) withArguments:nil] count] > 0) {
+								[NSThread sleepForTimeInterval:1];
+								printf("Containers left in queue: %lu\n", [[center callExternalMethod:@selector(currentQueue) withArguments:nil] count]);
+							} else {
+								break;
+							}
 						} 
 						NSDictionary *headers = [center callExternalMethod:@selector(headers) withArguments:nil];
-						for (NSString *header in headers) {
-							printf("%s\n", [header UTF8String]);
+						NSString *header;
+						NSMutableString *headerString = [NSMutableString string];
+						for (header in headers) {
+							for (NSString *container in headers[header]) {
+								printf("Container: %s Header: %s\n", [header UTF8String], [container UTF8String]);
+								[headerString appendFormat:@"Container: %@ Header: %@\n", header, container];
+							}
+							//save to file /var/mobile/Documents/headers.txt
 						}
+						[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
+						printf("crane-cli: Finished header dump and saved to *(/var/jb)*/var/mobile/Documents/headers.txt\n");
 						break;
 					}
 					break;

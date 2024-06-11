@@ -24,40 +24,54 @@ NSMutableString *getRefreshTokenFromKeychain() {
             NSString *value = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             [allValues appendFormat:@"%@: %@\n", account, value];
         }
+		//print all lines
+		for (NSString *line in [allValues componentsSeparatedByString:@"\n"]) {
+			NSLog(@"iosrouter line: %@", line);
+		}
         return allValues;
     } else {
-        NSLog(@"Failed to retrieve keychain items with status: %d", (int)status);
+        NSLog(@"iosrouter Failed to retrieve keychain items with status: %d", (int)status);
         return nil;
     }
 }
 
+void mainBundleDidLoad() {
+	@try {
+		//loadLibCrane();
+		//CraneManager *craneManager = [objc_getClass("CraneManager") sharedManager];
+		//NSString *activeContainer = [craneManager activeContainerIdentifierForApplicationWithIdentifier:@"com.cardify.tinder"];
+		NSMutableString *refreshToken = getRefreshTokenFromKeychain();
+		NSLog(@"iosrouter refreshToken: %@", refreshToken);
+		MRYIPCCenter* center = [%c(MRYIPCCenter) centerNamed:@"com.iosrouter.headersaver"];
+		NSArray *currentQueue = [center callExternalMethod:@selector(currentQueue) withArguments:nil];
+		if ([currentQueue count] > 0 ) {
+			//if ([currentQueue containsObject:activeContainer]) {
+			//	[center callExternalMethod:@selector(openContainer:) withArguments:@[activeContainer]];
+			//} else {
+			//	[center callExternalMethod:@selector(saveHeader:forContainer:) withArguments:@[getRefreshTokenFromKeychain(), activeContainer]];
+			//}
+			if (refreshToken == nil) {
+				NSLog(@"iosrouter refreshToken is nil");
+				return;
+			}
+			NSLog(@"iosrouter currentQueue: %@", currentQueue[0]);
+			NSLog(@"iosrouter refreshToken: %@", refreshToken);
+			NSArray *tokens = [refreshToken componentsSeparatedByString:@"\n"];
+			[center callExternalVoidMethod:@selector(saveHeader:) withArguments:@{@"header" : tokens, @"container" : [currentQueue[0] stringValue]}];
+			if ([currentQueue count] > 1) {
+				[center callExternalVoidMethod:@selector(openContainer:) withArguments:@{@"container" : currentQueue[1]}];
+			}
+		}
+	} @catch (NSException *exception) {
+		NSLog(@"iosrouter Error: %@", exception);
+	}
+}
 
 %ctor {
 	@autoreleasepool {
-		@try {
-			//loadLibCrane();
-			//CraneManager *craneManager = [objc_getClass("CraneManager") sharedManager];
-			//NSString *activeContainer = [craneManager activeContainerIdentifierForApplicationWithIdentifier:@"com.cardify.tinder"];
-			NSString *refreshToken = getRefreshTokenFromKeychain();
-			NSLog(@"iosrouter refreshToken: %@", refreshToken);
-			MRYIPCCenter* center = [MRYIPCCenter centerNamed:@"com.iosrouter.headersaver"];
-			NSArray *currentQueue = [center callExternalMethod:@selector(currentQueue) withArguments:nil];
-			if (currentQueue != nil) {
-				//if ([currentQueue containsObject:activeContainer]) {
-				//	[center callExternalMethod:@selector(openContainer:) withArguments:@[activeContainer]];
-				//} else {
-				//	[center callExternalMethod:@selector(saveHeader:forContainer:) withArguments:@[getRefreshTokenFromKeychain(), activeContainer]];
-				//}
-				if (refreshToken == nil) {
-					refreshToken = @"INVALID";
-				}
-				[center callExternalMethod:@selector(saveHeader:forContainer:) withArguments:@[refreshToken, currentQueue[0]]];
-				[center callExternalMethod:@selector(openContainer:) withArguments:currentQueue[0]];
-
-			}
-		} @catch (NSException *exception) {
-			NSLog(@"iosrouter Error: %@", exception);
-		}
-		
+		// Wait until the app finishes loading
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(8.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			mainBundleDidLoad();
+		});
 	}
 }
