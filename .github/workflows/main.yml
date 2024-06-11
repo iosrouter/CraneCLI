@@ -24,13 +24,23 @@ jobs:
           repository: theos/sdks
           sparse-checkout: iPhoneOS16.5.sdk
           path: theos/sdks
-
-      - name: Build Package
+          
+      - name: Checkout MRYIPC/master
+        uses: actions/checkout@main
+        with:
+          repository: iosrouter/MRYIPC
+          path: MRYIPC
+          
+      - name: Setup libs & build package
         run: |
           brew install make xz ldid
-          export THEOS=theos
-          gmake clean package FINALPACKAGE=1
-          gmake clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          cd MRYIPC
+          chmod +x install.sh
+          THEOS=../theos ./install.sh
+          cd ../
+          THEOS=theos gmake clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          THEOS=theos gmake clean package FINALPACKAGE=1
+          
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
         with:
