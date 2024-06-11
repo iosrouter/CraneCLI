@@ -181,8 +181,6 @@ int main(int argc, char *argv[]) {
 										NSMutableArray *mutableSettings = [settings mutableCopy];
 										[mutableSettings removeObject:container];
 										settings = [mutableSettings copy];
-										NSLog(@"iosrouter: debug: %@", settings);
-										NSLog(@"iosrouter: debug: %@", [settings description]);
 										[craneManager setApplicationSettings:@{@"Containers": settings} forApplicationWithIdentifier:appIDString];
 										printf("crane-cli: Deleted container \"%s\" for app \"%s\"\n", containerID, appID);
 									}
