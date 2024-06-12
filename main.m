@@ -222,7 +222,9 @@ int main(int argc, char *argv[]) {
 				case 't':
 					if (1) {
 						if (@available(iOS 15.0, *)) {
-							if (dlopen("/var/jb/usr/lib/libCrossOverIPC.dylib"), RLTD_NOW) == NULL)  { printf("crane-cli: Error loading CrossOver"); }
+							if ((dlopen("/var/jb/usr/lib/libCrossOverIPC.dylib"), RLTD_NOW) == NULL)  { 
+								printf("crane-cli: Error loading CrossOver"); 
+							}
 							printf("crane-cli: Starting header dump\n");
 							CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
 							[crossOver sendMessageName:@"startHeaderDump" userInfo:nil];
