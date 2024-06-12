@@ -44,7 +44,7 @@ NSMutableString *getRefreshTokenFromKeychain() {
 void mainBundleDidLoad() {
 	@try {
 		
-		#if ROOTLESS
+		#ifdef ROOTLESS
 		NSMutableString *refreshToken = getRefreshTokenFromKeychain();
 		NSLog(@"iosrouter refreshToken: %@", refreshToken);
 		CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];

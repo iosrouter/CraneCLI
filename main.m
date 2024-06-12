@@ -213,7 +213,7 @@ int main(int argc, char *argv[]) {
 
 				case 't':
 					if (1) {
-						#if ROOTLESS
+						#ifdef ROOTLESS
 						printf("crane-cli: Starting header dump\n");
 						CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
 						[crossOver sendMessageName:@"startHeaderDump" userInfo:nil];
