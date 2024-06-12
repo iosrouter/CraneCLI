@@ -52,8 +52,8 @@
 }
 
 
--(NSArray *)currentQueue {
-	return containerQueue;
+-(NSDictionary *)currentQueue {
+	return @{@"queue": containerQueue};
 }
 
 

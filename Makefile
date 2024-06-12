@@ -19,5 +19,8 @@ ifdef ROOTFUL
 $(info Add proper projects for rootful)
 SUBPROJECTS += headersaver
 endif
+ifeq ($(THEOS_PACKAGE_SCHEME), rootless)
+	$(TWEAK_NAME)_CFLAGS += -DROOTLESS
+endif
 SUBPROJECTS += tinderdumper
 include $(THEOS_MAKE_PATH)/aggregate.mk
