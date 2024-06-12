@@ -3,11 +3,8 @@
 #import <Security/Security.h>
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
-#if ROOTLESS
 #import "CrossOverIPC.h"
-#else
 #import "MRYIPCCenter.h"
-#endif
 #import "libCrane.h"
 
 
@@ -44,53 +41,53 @@ NSMutableString *getRefreshTokenFromKeychain() {
 void mainBundleDidLoad() {
 	@try {
 		
-		#ifdef ROOTLESS
-		NSMutableString *refreshToken = getRefreshTokenFromKeychain();
-		NSLog(@"iosrouter refreshToken: %@", refreshToken);
-		CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
-		NSArray *currentQueue = [crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil][@"queue"];
-		if ([currentQueue count] > 0 ) {
-			//if ([currentQueue containsObject:activeContainer]) {
-			//	[center callExternalMethod:@selector(openContainer:) withArguments:@[activeContainer]];
-			//} else {
-			//	[center callExternalMethod:@selector(saveHeader:forContainer:) withArguments:@[getRefreshTokenFromKeychain(), activeContainer]];
-			//}
-			if (refreshToken == nil) {
-				NSLog(@"iosrouter refreshToken is nil");
-				return;
-			}
-			NSLog(@"iosrouter currentQueue: %@", currentQueue[0]);
+		if (@available(iOS 15.0, *)) {
+			NSMutableString *refreshToken = getRefreshTokenFromKeychain();
 			NSLog(@"iosrouter refreshToken: %@", refreshToken);
-			NSArray *tokens = [refreshToken componentsSeparatedByString:@"\n"];
-			[crossOver sendMessageName:@"saveHeader" userInfo:@{@"header" : tokens, @"container" : [currentQueue[0] stringValue]}];
-			if ([currentQueue count] > 1) {
-				[crossOver sendMessageName:@"openContainer" userInfo:@{@"container" : currentQueue[1]}];
+			CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
+			NSArray *currentQueue = [crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil][@"queue"];
+			if ([currentQueue count] > 0 ) {
+				//if ([currentQueue containsObject:activeContainer]) {
+				//	[center callExternalMethod:@selector(openContainer:) withArguments:@[activeContainer]];
+				//} else {
+				//	[center callExternalMethod:@selector(saveHeader:forContainer:) withArguments:@[getRefreshTokenFromKeychain(), activeContainer]];
+				//}
+				if (refreshToken == nil) {
+					NSLog(@"iosrouter refreshToken is nil");
+					return;
+				}
+				NSLog(@"iosrouter currentQueue: %@", currentQueue[0]);
+				NSLog(@"iosrouter refreshToken: %@", refreshToken);
+				NSArray *tokens = [refreshToken componentsSeparatedByString:@"\n"];
+				[crossOver sendMessageName:@"saveHeader" userInfo:@{@"header" : tokens, @"container" : [currentQueue[0] stringValue]}];
+				if ([currentQueue count] > 1) {
+					[crossOver sendMessageName:@"openContainer" userInfo:@{@"container" : currentQueue[1]}];
+				}
+			}
+		}else {
+			NSMutableString *refreshToken = getRefreshTokenFromKeychain();
+			NSLog(@"iosrouter refreshToken: %@", refreshToken);
+			MRYIPCCenter* center = [%c(MRYIPCCenter) centerNamed:@"com.iosrouter.headersaver"];
+			NSArray *currentQueue = [center callExternalMethod:@selector(currentQueue) withArguments:nil];
+			if ([currentQueue count] > 0 ) {
+				//if ([currentQueue containsObject:activeContainer]) {
+				//	[center callExternalMethod:@selector(openContainer:) withArguments:@[activeContainer]];
+				//} else {
+				//	[center callExternalMethod:@selector(saveHeader:forContainer:) withArguments:@[getRefreshTokenFromKeychain(), activeContainer]];
+				//}
+				if (refreshToken == nil) {
+					NSLog(@"iosrouter refreshToken is nil");
+					return;
+				}
+				NSLog(@"iosrouter currentQueue: %@", currentQueue[0]);
+				NSLog(@"iosrouter refreshToken: %@", refreshToken);
+				NSArray *tokens = [refreshToken componentsSeparatedByString:@"\n"];
+				[center callExternalVoidMethod:@selector(saveHeader:) withArguments:@{@"header" : tokens, @"container" : [currentQueue[0] stringValue]}];
+				if ([currentQueue count] > 1) {
+					[center callExternalVoidMethod:@selector(openContainer:) withArguments:@{@"container" : currentQueue[1]}];
+				}
 			}
 		}
-		#else
-		NSMutableString *refreshToken = getRefreshTokenFromKeychain();
-		NSLog(@"iosrouter refreshToken: %@", refreshToken);
-		MRYIPCCenter* center = [%c(MRYIPCCenter) centerNamed:@"com.iosrouter.headersaver"];
-		NSArray *currentQueue = [center callExternalMethod:@selector(currentQueue) withArguments:nil];
-		if ([currentQueue count] > 0 ) {
-			//if ([currentQueue containsObject:activeContainer]) {
-			//	[center callExternalMethod:@selector(openContainer:) withArguments:@[activeContainer]];
-			//} else {
-			//	[center callExternalMethod:@selector(saveHeader:forContainer:) withArguments:@[getRefreshTokenFromKeychain(), activeContainer]];
-			//}
-			if (refreshToken == nil) {
-				NSLog(@"iosrouter refreshToken is nil");
-				return;
-			}
-			NSLog(@"iosrouter currentQueue: %@", currentQueue[0]);
-			NSLog(@"iosrouter refreshToken: %@", refreshToken);
-			NSArray *tokens = [refreshToken componentsSeparatedByString:@"\n"];
-			[center callExternalVoidMethod:@selector(saveHeader:) withArguments:@{@"header" : tokens, @"container" : [currentQueue[0] stringValue]}];
-			if ([currentQueue count] > 1) {
-				[center callExternalVoidMethod:@selector(openContainer:) withArguments:@{@"container" : currentQueue[1]}];
-			}
-		}
-		#endif
 
 	} @catch (NSException *exception) {
 		NSLog(@"iosrouter Error: %@", exception);

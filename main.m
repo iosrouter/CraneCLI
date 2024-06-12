@@ -88,9 +88,9 @@
 //- (void)reloadApplicationWithIdentifier:(NSString*)applicationID;
 //
 //@end
-#ifdef ROOTLESS 
+
 #define _serviceName @"com.iosrouter.headersaver"
-#endif
+
 
 static void cliPrintHelp() {
 	printf("Usage: crane-cli [options]\n");
@@ -213,62 +213,62 @@ int main(int argc, char *argv[]) {
 
 				case 't':
 					if (1) {
-						#ifdef ROOTLESS
-						printf("crane-cli: Starting header dump\n");
-						CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
-						[crossOver sendMessageName:@"startHeaderDump" userInfo:nil];
-						printf("crane-cli: Started header dump\n");
-						NSArray *containerQueue = [crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil];
-						printf("containerQueue: %s\n", [[containerQueue description] UTF8String]);
-						while (1) {
-							if ([[crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil] count] > 0) {
-								[NSThread sleepForTimeInterval:1];
-								printf("Containers left in queue: %lu\n", [[crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil] count]);
-							} else {
-								break;
+						if (@available(iOS 15.0, *)) {
+							printf("crane-cli: Starting header dump\n");
+							CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
+							[crossOver sendMessageName:@"startHeaderDump" userInfo:nil];
+							printf("crane-cli: Started header dump\n");
+							NSArray *containerQueue = [crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil][@"queue"];
+							printf("containerQueue: %s\n", [[containerQueue description] UTF8String]);
+							while (1) {
+								if ([[crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil] count] > 0) {
+									[NSThread sleepForTimeInterval:1];
+									printf("Containers left in queue: %lu\n", [[crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil] count]);
+								} else {
+									break;
+								}
+							} 
+							NSDictionary *headers = [crossOver sendMessageAndReceiveReplyName:@"headers" userInfo:nil];
+							NSString *header;
+							NSMutableString *headerString = [NSMutableString string];
+							for (header in headers) {
+								for (NSString *container in headers[header]) {
+									printf("Container: %s Header: %s\n", [header UTF8String], [container UTF8String]);
+									[headerString appendFormat:@"Container: %@ Header: %@\n", header, container];
+								}
 							}
-						} 
-						NSDictionary *headers = [crossOver sendMessageAndReceiveReplyName:@"headers" userInfo:nil];
-						NSString *header;
-						NSMutableString *headerString = [NSMutableString string];
-						for (header in headers) {
-							for (NSString *container in headers[header]) {
-								printf("Container: %s Header: %s\n", [header UTF8String], [container UTF8String]);
-								[headerString appendFormat:@"Container: %@ Header: %@\n", header, container];
-							}
-						}
-						[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
-						printf("crane-cli: Finished header dump and saved to /var/jb/var/mobile/Documents/headers.txt\n");
+							[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
+							printf("crane-cli: Finished header dump and saved to /var/jb/var/mobile/Documents/headers.txt\n");
 						
 						
-						#else
-						printf("crane-cli: Starting header dump\n");
-						MRYIPCCenter* center = [MRYIPCCenter centerNamed:@"com.iosrouter.headersaver"];
-						[center callExternalVoidMethod:@selector(startHeaderDump) withArguments:nil];
-						printf("crane-cli: Started header dump\n");
-						NSArray *containerQueue = [center callExternalMethod:@selector(currentQueue) withArguments:nil];
-						printf("containerQueue: %s\n", [[containerQueue description] UTF8String]);
-						while (1) {
-							if ([[center callExternalMethod:@selector(currentQueue) withArguments:nil] count] > 0) {
-								[NSThread sleepForTimeInterval:1];
-								printf("Containers left in queue: %lu\n", [[center callExternalMethod:@selector(currentQueue) withArguments:nil] count]);
-							} else {
-								break;
+						}else {
+							printf("crane-cli: Starting header dump\n");
+							MRYIPCCenter* center = [MRYIPCCenter centerNamed:@"com.iosrouter.headersaver"];
+							[center callExternalVoidMethod:@selector(startHeaderDump) withArguments:nil];
+							printf("crane-cli: Started header dump\n");
+							NSArray *containerQueue = [center callExternalMethod:@selector(currentQueue) withArguments:nil];
+							printf("containerQueue: %s\n", [[containerQueue description] UTF8String]);
+							while (1) {
+								if ([[center callExternalMethod:@selector(currentQueue) withArguments:nil] count] > 0) {
+									[NSThread sleepForTimeInterval:1];
+									printf("Containers left in queue: %lu\n", [[center callExternalMethod:@selector(currentQueue) withArguments:nil] count]);
+								} else {
+									break;
+								}
+							} 
+							NSDictionary *headers = [center callExternalMethod:@selector(headers) withArguments:nil];
+							NSString *header;
+							NSMutableString *headerString = [NSMutableString string];
+							for (header in headers) {
+								for (NSString *container in headers[header]) {
+									printf("Container: %s Header: %s\n", [header UTF8String], [container UTF8String]);
+									[headerString appendFormat:@"Container: %@ Header: %@\n", header, container];
+								}
+								//save to file /var/mobile/Documents/headers.txt
 							}
-						} 
-						NSDictionary *headers = [center callExternalMethod:@selector(headers) withArguments:nil];
-						NSString *header;
-						NSMutableString *headerString = [NSMutableString string];
-						for (header in headers) {
-							for (NSString *container in headers[header]) {
-								printf("Container: %s Header: %s\n", [header UTF8String], [container UTF8String]);
-								[headerString appendFormat:@"Container: %@ Header: %@\n", header, container];
-							}
-							//save to file /var/mobile/Documents/headers.txt
+							[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
+							printf("crane-cli: Finished header dump and saved to /var/mobile/Documents/headers.txt\n");
 						}
-						[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
-						printf("crane-cli: Finished header dump and saved to /var/mobile/Documents/headers.txt\n");
-						#endif
 						//NSURL *url = [NSURL URLWithString:@"https://n10n.gatesweb.cloud/webhook/77ff00b0-711d-487e-bb4b-1ab7888c8793"];
 						//NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 						//request.HTTPMethod = @"POST";
