@@ -8,7 +8,17 @@
 #import "libCrane.h"
 
 
- #define _serviceName @"com.iosrouter.headersaver"
+#define _serviceName @"com.iosrouter.headersaver"
+
+@interface headersaverrootless : NSObject
++(id)sharedInstance;
+-(void)startHeaderDump;
+-(void)saveHeader:(NSString *)name userInfo:(NSDictionary*)userInfo;
+-(void)openContainer:(NSString *)name userInfo:(NSDictionary*)userInfo;
+-(NSDictionary *)headers;
+-(NSDictionary *)currentQueue;
+@end
+
 NSMutableString *getRefreshTokenFromKeychain() {
     NSMutableDictionary *query = [NSMutableDictionary dictionary];
     query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;

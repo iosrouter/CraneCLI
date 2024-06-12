@@ -91,6 +91,14 @@
 
 #define _serviceName @"com.iosrouter.headersaver"
 
+@interface headersaverrootless : NSObject
++(id)sharedInstance;
+-(void)startHeaderDump;
+-(void)saveHeader:(NSString *)name userInfo:(NSDictionary*)userInfo;
+-(void)openContainer:(NSString *)name userInfo:(NSDictionary*)userInfo;
+-(NSDictionary *)headers;
+-(NSDictionary *)currentQueue;
+@end
 
 static void cliPrintHelp() {
 	printf("Usage: crane-cli [options]\n");

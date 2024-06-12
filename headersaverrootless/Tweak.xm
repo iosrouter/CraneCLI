@@ -48,11 +48,11 @@ BOOL didInitServer = NO;
 
         CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_LISTENER];
 
-        [crossOver registerForMessageName:@"startHeaderDump" target:self selector:@selector(startHeaderDump:)];
+        [crossOver registerForMessageName:@"startHeaderDump" target:self selector:@selector(startHeaderDump)];
 		[crossOver registerForMessageName:@"saveHeader" target:self selector:@selector(saveHeader: userInfo:)];
 		[crossOver registerForMessageName:@"openContainer" target:self selector:@selector(openContainer: userInfo:)];
-		[crossOver registerForMessageName:@"headers" target:self selector:@selector(headers:)];
-		[crossOver registerForMessageName:@"currentQueue" target:self selector:@selector(currentQueue:)];
+		[crossOver registerForMessageName:@"headers" target:self selector:@selector(headers)];
+		[crossOver registerForMessageName:@"currentQueue" target:self selector:@selector(currentQueue)];
 
 	}
 	return self;
@@ -60,12 +60,12 @@ BOOL didInitServer = NO;
 
 
 
--(NSDictionary *)currentQueue:(NSString *)name {
+-(NSDictionary *)currentQueue{
 	return @{@"queue": containerQueue};
 }
 
 
--(void)startHeaderDump:(NSString *)name {
+-(void)startHeaderDump{
 	NSLog(@"iosrouter starting header dump");
 	@try {
 		loadLibCrane();
@@ -107,9 +107,8 @@ BOOL didInitServer = NO;
 
 }
 
--(NSDictionary *)headers:(NSString *)name {
-	NSLog(@"iosrouter headers: %@", headers);
-	return headers;
+-(NSDictionary *)headers {
+	return {@"headers": headers};
 }
 
 
