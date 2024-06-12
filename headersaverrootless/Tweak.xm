@@ -11,11 +11,12 @@
 @end
 
 @interface headersaverrootless : NSObject
--(void)startHeaderDump;
--(void)saveHeader:(id)userInfo;
--(void)openContainer:(id)userInfo;
--(NSDictionary *)headers;
--(NSArray *)currentQueue;
++(id)sharedInstance;
+-(void)startHeaderDump:(NSString *)name;
+-(void)saveHeader:(NSString *)name userInfo:(NSDictionary*)userInfo;
+-(void)openContainer:(NSString *)name userInfo:(NSDictionary*)userInfo;
+-(NSDictionary *)headers:(NSString *)name;
+-(NSDictionary *)currentQueue:(NSString *)name;
 @end
 
 @implementation headersaverrootless
