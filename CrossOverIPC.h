@@ -9,7 +9,6 @@
  
 
 typedef enum CrossOverIPCServiceType : CFIndex {
-
     SERVICE_TYPE_SENDER,
     SERVICE_TYPE_LISTENER
 

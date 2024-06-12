@@ -218,8 +218,11 @@ int main(int argc, char *argv[]) {
 							CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
 							[crossOver sendMessageName:@"startHeaderDump" userInfo:nil];
 							printf("crane-cli: Started header dump\n");
-							NSArray *containerQueue = [crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil][@"queue"];
+							NSDictionary *containerQueueDict = [crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil];
+							NSArray *containerQueue = containerQueueDict[@"queue"];
+
 							printf("containerQueue: %s\n", [[containerQueue description] UTF8String]);
+							printf("containerQueueDict: %s\n", [[containerQueueDict description] UTF8String]);
 							while (1) {
 								if ([[crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil] count] > 0) {
 									[NSThread sleepForTimeInterval:1];
