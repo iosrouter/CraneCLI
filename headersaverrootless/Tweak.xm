@@ -23,41 +23,48 @@
 	NSMutableArray *containerQueue;
 	NSMutableDictionary *headers;
 }
++(void)load
+{
+	[self sharedInstance];
+}
 
--(id)init {
++(id)sharedInstance
+{
+	static dispatch_once_t once = 0;
+	__strong static id sharedInstance = nil;
+	dispatch_once(&once, ^{
+		sharedInstance = [[self alloc] init];
+	});
+	return sharedInstance;
+}
 
-	if ((self = [super init])){ 
-
- 
-	   
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-
-
-        #define _serviceName @"com.iosrouter.headersaver"
+BOOL didInitServer = NO;
+-(id)init
+{
+	if ((self = [super init]))
+	{
+		#define _serviceName @"com.iosrouter.headersaver"
 
         CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_LISTENER];
 
-        [crossOver registerForMessageName:@"startHeaderDump" target:self selector:@selector(startHeaderDump)];
-		[crossOver registerForMessageName:@"saveHeader" target:self selector:@selector(saveHeader:)];
-		[crossOver registerForMessageName:@"openContainer" target:self selector:@selector(openContainer:)];
-		[crossOver registerForMessageName:@"headers" target:self selector:@selector(headers)];
-		[crossOver registerForMessageName:@"currentQueue" target:self selector:@selector(currentQueue)];
+        [crossOver registerForMessageName:@"startHeaderDump" target:self selector:@selector(startHeaderDump:)];
+		[crossOver registerForMessageName:@"saveHeader" target:self selector:@selector(saveHeader: userInfo:)];
+		[crossOver registerForMessageName:@"openContainer" target:self selector:@selector(openContainer: userInfo:)];
+		[crossOver registerForMessageName:@"headers" target:self selector:@selector(headers:)];
+		[crossOver registerForMessageName:@"currentQueue" target:self selector:@selector(currentQueue:)];
 
- 
-        }); 
-
-    }
-
-    return self;
+	}
+	return self;
 }
 
 
--(NSDictionary *)currentQueue {
+
+-(NSDictionary *)currentQueue:(NSString *)name {
 	return @{@"queue": containerQueue};
 }
 
 
--(void)startHeaderDump {
+-(void)startHeaderDump:(NSString *)name {
 	NSLog(@"iosrouter starting header dump");
 	@try {
 		loadLibCrane();
@@ -75,7 +82,7 @@
 	NSLog(@"iosrouter started header dump");
 }
 
--(void)saveHeader:(id)userInfo {
+-(void)saveHeader:(NSString *)name userInfo:(NSDictionary*)userInfo {
 	NSString *container = [userInfo objectForKey:@"container"];
 	NSArray *header = [userInfo objectForKey:@"header"];
 	@try {
@@ -87,7 +94,7 @@
 	}
 }
 
--(void)openContainer:(id)userInfo {
+-(void)openContainer:(NSString *)name userInfo:(NSDictionary*)userInfo {
 	NSString *container = [userInfo objectForKey:@"container"];
 	loadLibCrane();
 	CraneManager *craneManager = [objc_getClass("CraneManager") sharedManager];
@@ -99,7 +106,7 @@
 
 }
 
--(NSDictionary *)headers {
+-(NSDictionary *)headers:(NSString *)name {
 	NSLog(@"iosrouter headers: %@", headers);
 	return headers;
 }
@@ -111,5 +118,5 @@
 
 
 %ctor {
-	[headersaverrootless new];
+	[headersaverrootless load];
 }
