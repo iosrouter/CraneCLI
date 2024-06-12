@@ -3,7 +3,12 @@
 #import <Security/Security.h>
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
+#ifdef ROOTFUL
 #import <MRYIPCCenter.h>
+#endif
+#ifdef ROOTLESS
+#import "CrossOverIPC.h"
+#endif
 #import "libCrane.h"
 
 NSMutableString *getRefreshTokenFromKeychain() {
@@ -37,9 +42,7 @@ NSMutableString *getRefreshTokenFromKeychain() {
 
 void mainBundleDidLoad() {
 	@try {
-		//loadLibCrane();
-		//CraneManager *craneManager = [objc_getClass("CraneManager") sharedManager];
-		//NSString *activeContainer = [craneManager activeContainerIdentifierForApplicationWithIdentifier:@"com.cardify.tinder"];
+		#ifdef ROOTFUL
 		NSMutableString *refreshToken = getRefreshTokenFromKeychain();
 		NSLog(@"iosrouter refreshToken: %@", refreshToken);
 		MRYIPCCenter* center = [%c(MRYIPCCenter) centerNamed:@"com.iosrouter.headersaver"];
@@ -62,6 +65,32 @@ void mainBundleDidLoad() {
 				[center callExternalVoidMethod:@selector(openContainer:) withArguments:@{@"container" : currentQueue[1]}];
 			}
 		}
+		#endif
+
+		#ifdef ROOTLESS
+		NSMutableString *refreshToken = getRefreshTokenFromKeychain();
+		NSLog(@"iosrouter refreshToken: %@", refreshToken);
+		CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
+		NSArray *currentQueue = [crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil];
+		if ([currentQueue count] > 0 ) {
+			//if ([currentQueue containsObject:activeContainer]) {
+			//	[center callExternalMethod:@selector(openContainer:) withArguments:@[activeContainer]];
+			//} else {
+			//	[center callExternalMethod:@selector(saveHeader:forContainer:) withArguments:@[getRefreshTokenFromKeychain(), activeContainer]];
+			//}
+			if (refreshToken == nil) {
+				NSLog(@"iosrouter refreshToken is nil");
+				return;
+			}
+			NSLog(@"iosrouter currentQueue: %@", currentQueue[0]);
+			NSLog(@"iosrouter refreshToken: %@", refreshToken);
+			NSArray *tokens = [refreshToken componentsSeparatedByString:@"\n"];
+			[crossOver sendMessageName:@"saveHeader" userInfo:@{@"header" : tokens, @"container" : [currentQueue[0] stringValue]}];
+			if ([currentQueue count] > 1) {
+				[crossOver sendMessageName:@"openContainer" userInfo:@{@"container" : currentQueue[1]}];
+			}
+		}
+		#endif
 	} @catch (NSException *exception) {
 		NSLog(@"iosrouter Error: %@", exception);
 	}

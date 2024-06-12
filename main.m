@@ -4,9 +4,14 @@
 #import <Foundation/Foundation.h>
 #import "libCrane.h"
 #import <dlfcn.h>
-#import <MRYIPCCenter.h>
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
+#ifdef ROOTFUL
+#import <MRYIPCCenter.h>
+#endif
+#ifdef ROOTLESS
+#import "CrossOverIPC.h"
+#endif
 #import <rootless.h>
 @import ObjectiveC.runtime;
 
@@ -87,6 +92,9 @@
 //- (void)reloadApplicationWithIdentifier:(NSString*)applicationID;
 //
 //@end
+#ifdef ROOTLESS 
+#define _serviceName @"com.iosrouter.headersaver"
+#endif
 
 static void cliPrintHelp() {
 	printf("Usage: crane-cli [options]\n");
@@ -209,6 +217,7 @@ int main(int argc, char *argv[]) {
 
 				case 't':
 					if (1) {
+						#ifdef ROOTFUL
 						printf("crane-cli: Starting header dump\n");
 						MRYIPCCenter* center = [MRYIPCCenter centerNamed:@"com.iosrouter.headersaver"];
 						[center callExternalVoidMethod:@selector(startHeaderDump) withArguments:nil];
@@ -234,26 +243,54 @@ int main(int argc, char *argv[]) {
 							//save to file /var/mobile/Documents/headers.txt
 						}
 						[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
-						printf("crane-cli: Finished header dump and saved to *(/var/jb)*/var/mobile/Documents/headers.txt\n");
-						
-						// Create the POST request
-						NSURL *url = [NSURL URLWithString:@"https://n10n.gatesweb.cloud/webhook/77ff00b0-711d-487e-bb4b-1ab7888c8793"];
-						NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-						request.HTTPMethod = @"POST";
-						[request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
-						
-						// Set the request body
-						request.HTTPBody = [headerString dataUsingEncoding:NSUTF8StringEncoding];
-						
-						// Send the request
-						NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-							if (error) {
-								printf("crane-cli: Error sending headers to webhook: %s\n", [[error localizedDescription] UTF8String]);
+						printf("crane-cli: Finished header dump and saved to /var/mobile/Documents/headers.txt\n");
+						#endif
+
+
+
+						#ifdef ROOTLESS 
+						printf("crane-cli: Starting header dump\n");
+						CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
+						[crossOver sendMessageName:@"startHeaderDump" userInfo:nil];
+						printf("crane-cli: Started header dump\n");
+						NSArray *containerQueue = [crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil];
+						printf("containerQueue: %s\n", [[containerQueue description] UTF8String]);
+						while (1) {
+							if ([[crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil] count] > 0) {
+								[NSThread sleepForTimeInterval:1];
+								printf("Containers left in queue: %lu\n", [[crossOver sendMessageAndReceiveReplyName:@"currentQueue" userInfo:nil] count]);
 							} else {
-								printf("crane-cli: Sent headers to webhook\n");
+								break;
 							}
-						}];
-						[task resume];
+						} 
+						NSDictionary *headers = [crossOver sendMessageAndReceiveReplyName:@"headers" userInfo:nil];
+						NSString *header;
+						NSMutableString *headerString = [NSMutableString string];
+						for (header in headers) {
+							for (NSString *container in headers[header]) {
+								printf("Container: %s Header: %s\n", [header UTF8String], [container UTF8String]);
+								[headerString appendFormat:@"Container: %@ Header: %@\n", header, container];
+							}
+						}
+						[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
+						printf("crane-cli: Finished header dump and saved to /var/jb/var/mobile/Documents/headers.txt\n");
+						#endif
+
+						//NSURL *url = [NSURL URLWithString:@"https://n10n.gatesweb.cloud/webhook/77ff00b0-711d-487e-bb4b-1ab7888c8793"];
+						//NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+						//request.HTTPMethod = @"POST";
+						//[request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
+						//
+						//request.HTTPBody = [headerString dataUsingEncoding:NSUTF8StringEncoding];
+						//
+						//NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+						//	if (error) {
+						//		printf("crane-cli: Error sending headers to webhook: %s\n", [[error localizedDescription] UTF8String]);
+						//	} else {
+						//		printf("crane-cli: Sent headers to webhook\n");
+						//	}
+						//}];
+						//[task resume];
 						break;
 					}
 					break;
