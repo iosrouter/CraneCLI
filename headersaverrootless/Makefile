@@ -5,7 +5,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = headersaverrootless
 
-headersaver_FILES = Tweak.x
+headersaver_FILES = Tweak.xm
 headersaver_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk

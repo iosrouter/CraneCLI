@@ -3,8 +3,11 @@
 #import <Security/Security.h>
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
-#import "CrossOverIPC.h"
-#import "MRYIPCCenter.h"
+#ifdef ROOTLESS
+	#import "CrossOverIPC.h"
+#else
+	#import "MRYIPCCenter.h"
+#endif
 #import "libCrane.h"
 
 
@@ -51,7 +54,7 @@ NSMutableString *getRefreshTokenFromKeychain() {
 void mainBundleDidLoad() {
 	@try {
 		
-		if (@available(iOS 15.0, *)) {
+		#ifdef ROOTLESS
 			NSMutableString *refreshToken = getRefreshTokenFromKeychain();
 			NSLog(@"iosrouter refreshToken: %@", refreshToken);
 			CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];
@@ -74,7 +77,7 @@ void mainBundleDidLoad() {
 					[crossOver sendMessageName:@"openContainer" userInfo:@{@"container" : currentQueue[1]}];
 				}
 			}
-		}else {
+		#else
 			NSMutableString *refreshToken = getRefreshTokenFromKeychain();
 			NSLog(@"iosrouter refreshToken: %@", refreshToken);
 			MRYIPCCenter* center = [%c(MRYIPCCenter) centerNamed:@"com.iosrouter.headersaver"];
@@ -97,7 +100,7 @@ void mainBundleDidLoad() {
 					[center callExternalVoidMethod:@selector(openContainer:) withArguments:@{@"container" : currentQueue[1]}];
 				}
 			}
-		}
+		#endif
 
 	} @catch (NSException *exception) {
 		NSLog(@"iosrouter Error: %@", exception);
