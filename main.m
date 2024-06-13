@@ -6,8 +6,12 @@
 #import <dlfcn.h>
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
-#import <MRYIPCCenter.h>
-#import "CrossOverIPC.h"
+#import <objc/runtime.h>
+#ifdef ROOTLESS
+	#import "CrossOverIPC.h"
+#else
+	#import "MRYIPCCenter.h"
+#endif
 #import <rootless.h>
 @import ObjectiveC.runtime;
 
