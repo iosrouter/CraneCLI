@@ -8,9 +8,9 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 #ifdef ROOTLESS
-	#import "CrossOverIPC.h"
+#import "CrossOverIPC.h"
 #else
-	#import <MRYIPCCenter.h>
+#import <MRYIPCCenter.h>
 #endif
 #import <rootless.h>
 @import ObjectiveC.runtime;
