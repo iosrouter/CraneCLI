@@ -3,7 +3,7 @@
 #import <Security/Security.h>
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
-#ifdef ROOTLESS
+#if ROOTLESS
 	#import "CrossOverIPC.h"
 #else
 	#import <MRYIPCCenter.h>
@@ -54,7 +54,7 @@ NSMutableString *getRefreshTokenFromKeychain() {
 void mainBundleDidLoad() {
 	@try {
 		
-		#ifdef ROOTLESS
+		#if ROOTLESS
 			NSMutableString *refreshToken = getRefreshTokenFromKeychain();
 			NSLog(@"iosrouter refreshToken: %@", refreshToken);
 			CrossOverIPC *crossOver = [objc_getClass("CrossOverIPC") centerNamed:_serviceName type:SERVICE_TYPE_SENDER];

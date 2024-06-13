@@ -8,12 +8,12 @@ crane-cli_FILES = main.m
 crane-cli_CFLAGS = -fobjc-arc
 crane-cli_CODESIGN_FLAGS = -Sentitlements.plist
 crane-cli_INSTALL_PATH = /usr/local/bin
-crane-cli_LIBRARIES = mryipc
 
 include $(THEOS_MAKE_PATH)/tool.mk
 ifeq ($(THEOS_PACKAGE_SCHEME), rootless)
 SUBPROJECTS += headersaverrootless
 else
+crane-cli_LIBRARIES = mryipc
 SUBPROJECTS += headersaver
 endif
 ifeq ($(THEOS_PACKAGE_SCHEME), rootless)

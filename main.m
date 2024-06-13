@@ -7,7 +7,7 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
-#ifdef ROOTLESS
+#if ROOTLESS
 #import "CrossOverIPC.h"
 #else
 #import <MRYIPCCenter.h>
@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
 
 				case 't':
 					if (1) {
-						#ifdef ROOTLESS
+						#if ROOTLESS
 							if ((dlopen("/var/jb/usr/lib/libCrossOverIPC.dylib", RTLD_LAZY)) == NULL)  { 
 								printf("crane-cli: Error loading CrossOver"); 
 							}
