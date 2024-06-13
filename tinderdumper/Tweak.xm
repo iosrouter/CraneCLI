@@ -6,7 +6,7 @@
 #ifdef ROOTLESS
 	#import "CrossOverIPC.h"
 #else
-	#import "MRYIPCCenter.h"
+	#import <"MRYIPCCenter.h">
 #endif
 #import "libCrane.h"
 
