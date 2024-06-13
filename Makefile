@@ -11,10 +11,10 @@ crane-cli_INSTALL_PATH = /usr/local/bin
 
 include $(THEOS_MAKE_PATH)/tool.mk
 ifeq ($(THEOS_PACKAGE_SCHEME), rootless)
-	SUBPROJECTS += headersaverrootless
+SUBPROJECTS += headersaverrootless
 else
-	crane-cli_LIBRARIES = mryipc
-	SUBPROJECTS += headersaver
+crane-cli_LIBRARIES = mryipc
+SUBPROJECTS += headersaver
 endif
 ifeq ($(THEOS_PACKAGE_SCHEME), rootless)
 	$(TWEAK_NAME)_CFLAGS += -DROOTLESS
