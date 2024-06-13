@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
 
 				case 't':
 					if (1) {
-						if (@available(iOS 15.0, *)) {
+						#ifdef ROOTLESS
 							if ((dlopen("/var/jb/usr/lib/libCrossOverIPC.dylib", RTLD_LAZY)) == NULL)  { 
 								printf("crane-cli: Error loading CrossOver"); 
 							}
@@ -259,7 +259,7 @@ int main(int argc, char *argv[]) {
 							printf("crane-cli: Finished header dump and saved to /var/jb/var/mobile/Documents/headers.txt\n");
 						
 						
-						}else {
+						#else
 							printf("crane-cli: Starting header dump\n");
 							MRYIPCCenter* center = [MRYIPCCenter centerNamed:@"com.iosrouter.headersaver"];
 							[center callExternalVoidMethod:@selector(startHeaderDump) withArguments:nil];
@@ -286,7 +286,7 @@ int main(int argc, char *argv[]) {
 							}
 							[headerString writeToFile:ROOT_PATH_NS(@"/var/mobile/Documents/headers.txt") atomically:YES encoding:NSUTF8StringEncoding error:nil];
 							printf("crane-cli: Finished header dump and saved to /var/mobile/Documents/headers.txt\n");
-						}
+						#endif
 						//NSURL *url = [NSURL URLWithString:@"https://n10n.gatesweb.cloud/webhook/77ff00b0-711d-487e-bb4b-1ab7888c8793"];
 						//NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 						//request.HTTPMethod = @"POST";
