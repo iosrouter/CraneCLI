@@ -2,6 +2,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import "libCrane.h"
+#import "CrossOverIPC.h"
 #import <objc/runtime.h>
 @import ObjectiveC.runtime;
 @import UIKit.UIApplication;
@@ -60,18 +61,18 @@ BOOL didInitServer = NO;
 
 
 
--(NSDictionary *)currentQueue{
+-(NSDictionary *)currentQueue:(NSString *)name {
 	return @{@"queue": containerQueue};
 }
 
 
--(void)startHeaderDump{
+-(void)startHeaderDump:(NSString *)name {
 	NSLog(@"iosrouter starting header dump");
 	@try {
 		loadLibCrane();
 		CraneManager *craneManager = [objc_getClass("CraneManager") sharedManager];
 		NSMutableArray *preQueue = [[craneManager containerIdentifiersOfApplicationWithIdentifier:@"com.cardify.tinder"] mutableCopy];
-		[self openContainer:@{@"container": preQueue[0]}];
+		[self openContainer:@"com.cardify.tinder" userInfo:@{@"container": preQueue[0]}];
 		containerQueue = [preQueue mutableCopy];
 		headers = [NSMutableDictionary new];
 		Class LSApplicationWorkspace_class = objc_getClass("LSApplicationWorkspace");
@@ -107,8 +108,8 @@ BOOL didInitServer = NO;
 
 }
 
--(NSDictionary *)headers {
-	return {@"headers": headers};
+-(NSDictionary *)headers:(NSString *)name {
+	return @{@"headers": headers};
 }
 
 
