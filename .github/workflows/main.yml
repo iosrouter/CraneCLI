@@ -43,6 +43,6 @@ jobs:
           THEOS=theos gmake clean package FINALPACKAGE=1
           
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: packages/*.deb
